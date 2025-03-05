@@ -9,7 +9,7 @@ class Conta {
 
     public Conta(String nome, double saldo) {
         if (saldo < 0) {
-            throw new IllegalArgumentException("o saldo não pode ser negativo");
+            throw new IllegalArgumentException("o saldo inicial não pode ser negativo");
         }
         this.nome = nome;
         this.saldo = saldo;
@@ -71,6 +71,7 @@ class SistemaFinanceiro {
 public class Main {
     public static void main(String[] args) {
         SistemaFinanceiro sistema = new SistemaFinanceiro();
+        sistema.adicionaConta("Conta da Space X", 1500000);
         sistema.adicionaConta("Conta da Space X", 1500000);
         sistema.adicionaConta("Conta da Blue Origin", 1300000);
         sistema.processarPagamento(2000);
