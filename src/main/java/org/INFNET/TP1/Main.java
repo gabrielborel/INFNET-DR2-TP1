@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class Livro {
-    private String titulo;
+    private final String titulo;
     private boolean disponivel;
 
     public Livro(String titulo) {
@@ -30,7 +30,7 @@ class Livro {
 }
 
 class Biblioteca {
-    private List<Livro> livros;
+    private final List<Livro> livros;
 
     public Biblioteca() {
         this.livros = new ArrayList<>();
