@@ -1,43 +1,74 @@
 package org.INFNET.TP1;
 
-class Processador {
+import java.util.ArrayList;
+import java.util.List;
 
-    public void processar(String dado) {
-        boolean dadoExiste = this.verificaValidade(dado);
-        if (!dadoExiste) {
-            System.out.println("Dado inválido.");
-            return;
-        }
+class Produto {
+    private String nome;
+    private double preco;
+    private int quantidade;
 
-        boolean dadoTamanhoValido = this.verificaTamanho(dado);
-        if (!dadoTamanhoValido) {
-            System.out.println("Dado muito curto.");
-            return;
-        }
-
-        System.out.println("Dado válido: " + dado);
+    public Produto(String nome, double preco, int quantidade) {
+        this.nome = nome;
+        this.preco = preco;
+        this.quantidade = quantidade;
     }
 
-    private boolean verificaValidade(String dado) {
-        return !dado.isEmpty();
+    public String getNome() {
+        return nome;
     }
 
-    private boolean verificaTamanho(String dado) {
-        int TAMANHO_MINIMO = 10;
-        return dado.length() > TAMANHO_MINIMO;
+    public double getPreco() {
+        return preco;
+    }
+
+    public int getQuantidade() {
+        return quantidade;
+    }
+
+    public double calcularValorTotal() {
+        return preco * quantidade;
+    }
+}
+
+class CarrinhoDeCompras {
+    private final List<Produto> itens;
+
+    public CarrinhoDeCompras() {
+        this.itens = new ArrayList<>();
+    }
+
+    public void adicionarProduto(Produto produto) {
+        itens.add(produto);
+    }
+
+    private double calcularTotal() {
+        return itens.stream()
+                .mapToDouble(Produto::calcularValorTotal)
+                .sum();
+    }
+
+    public void exibirResumo() {
+        System.out.println("Resumo da Compra:");
+        itens.forEach(item -> System.out.printf(
+                "%s x%d: R$ %.2f%n",
+                item.getNome(),
+                item.getQuantidade(),
+                item.getPreco() * item.getQuantidade()
+        ));
+        System.out.printf("Total: R$ %.2f%n", calcularTotal());
     }
 }
 
 public class Main {
     public static void main(String[] args) {
-        Processador processador = new Processador();
-        processador.processar("Dado 1");
-        processador.processar("Dado 2");
-        processador.processar("Dado 3");
-        processador.processar("Dado 4");
-        processador.processar("Dado 567890");
-        processador.processar("Dado 56789012313");
-        processador.processar("Dado 567890423424");
-        processador.processar("Dado 56789034535345");
+        CarrinhoDeCompras carrinho = new CarrinhoDeCompras();
+        carrinho.adicionarProduto(
+                new Produto("Banana", 5, 10)
+        );
+        carrinho.adicionarProduto(
+                new Produto("Uva", 2, 32)
+        );
+        carrinho.exibirResumo();
     }
 }
