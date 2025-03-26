@@ -3,72 +3,78 @@ package org.INFNET.TP1;
 import java.util.ArrayList;
 import java.util.List;
 
-class Produto {
-    private String nome;
-    private double preco;
-    private int quantidade;
+class Livro {
+    private String titulo;
+    private boolean disponivel;
 
-    public Produto(String nome, double preco, int quantidade) {
-        this.nome = nome;
-        this.preco = preco;
-        this.quantidade = quantidade;
+    public Livro(String titulo) {
+        this.titulo = titulo;
+        this.disponivel = true;
     }
 
-    public String getNome() {
-        return nome;
+    public String getTitulo() {
+        return titulo;
     }
 
-    public double getPreco() {
-        return preco;
+    public boolean isDisponivel() {
+        return disponivel;
     }
 
-    public int getQuantidade() {
-        return quantidade;
+    public void emprestar() {
+        this.disponivel = false;
     }
 
-    public double calcularValorTotal() {
-        return preco * quantidade;
+    public void devolver() {
+        this.disponivel = true;
     }
 }
 
-class CarrinhoDeCompras {
-    private final List<Produto> itens;
+class Biblioteca {
+    private List<Livro> livros;
 
-    public CarrinhoDeCompras() {
-        this.itens = new ArrayList<>();
+    public Biblioteca() {
+        this.livros = new ArrayList<>();
     }
 
-    public void adicionarProduto(Produto produto) {
-        itens.add(produto);
+    public void adicionarLivro(String titulo) {
+        livros.add(new Livro(titulo));
     }
 
-    private double calcularTotal() {
-        return itens.stream()
-                .mapToDouble(Produto::calcularValorTotal)
-                .sum();
+    public void emprestarLivro(String titulo) {
+        for (Livro livro : livros) {
+            if (livro.getTitulo().equals(titulo) && livro.isDisponivel()) {
+                livro.emprestar();
+                System.out.println("Livro emprestado: " + titulo);
+                return;
+            }
+        }
+        System.out.println("Livro não disponível.");
     }
 
-    public void exibirResumo() {
-        System.out.println("Resumo da Compra:");
-        itens.forEach(item -> System.out.printf(
-                "%s x%d: R$ %.2f%n",
-                item.getNome(),
-                item.getQuantidade(),
-                item.getPreco() * item.getQuantidade()
-        ));
-        System.out.printf("Total: R$ %.2f%n", calcularTotal());
+    public void devolverLivro(String titulo) {
+        for (Livro livro : livros) {
+            if (livro.getTitulo().equals(titulo)) {
+                livro.devolver();
+                System.out.println("Livro devolvido: " + titulo);
+                return;
+            }
+        }
+        System.out.println("Livro não encontrado.");
     }
 }
+
 
 public class Main {
     public static void main(String[] args) {
-        CarrinhoDeCompras carrinho = new CarrinhoDeCompras();
-        carrinho.adicionarProduto(
-                new Produto("Banana", 5, 10)
-        );
-        carrinho.adicionarProduto(
-                new Produto("Uva", 2, 32)
-        );
-        carrinho.exibirResumo();
+        Biblioteca biblioteca = new Biblioteca();
+        biblioteca.adicionarLivro("Livro 1");
+        biblioteca.adicionarLivro("Livro 2");
+
+        biblioteca.emprestarLivro("Livro 1");
+        biblioteca.emprestarLivro("Livro 3");
+
+        biblioteca.emprestarLivro("Livro 1");
+        biblioteca.devolverLivro("Livro 1");
+        biblioteca.emprestarLivro("Livro 1");
     }
 }
