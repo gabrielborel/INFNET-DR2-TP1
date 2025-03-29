@@ -1,16 +1,23 @@
 package org.INFNET.TP1;
 
-class Processador {
-    public void executar(String v) {
-        if (v != null) {
-            System.out.println("Processando: " + v);
+class Servico {
+    public void processar(String dado) {
+        if (dado == null) {
+            throw new NullPointerException("Valor nulo não é permitido");
         }
+
+        if (dado.isEmpty()) {
+            throw new IllegalArgumentException("Valor não pode ser vazio");
+        }
+
+        System.out.println("Processando: " + dado.toUpperCase());
     }
 }
 
 public class Main {
     public static void main(String[] args) {
-        Processador processador = new Processador();
-        processador.executar("java");
+        Servico servico = new Servico();
+        servico.processar("Hello World");
+        servico.processar("");
     }
 }
