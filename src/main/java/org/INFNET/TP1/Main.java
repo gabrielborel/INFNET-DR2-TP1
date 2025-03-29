@@ -1,80 +1,88 @@
 package org.INFNET.TP1;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-class Livro {
-    private final String titulo;
-    private boolean disponivel;
+class Conta {
+    private String titular;
+    private double saldo;
 
-    public Livro(String titulo) {
-        this.titulo = titulo;
-        this.disponivel = true;
+    public Conta(String titular, double saldoInicial) {
+        if (saldoInicial < 0) {
+            throw new IllegalArgumentException("saldo não pode ser menor que zero");
+        }
+        this.titular = titular;
+        this.saldo = saldoInicial;
     }
 
-    public String getTitulo() {
-        return titulo;
+    public String getTitular() { return titular; }
+    public double getSaldo() { return saldo; }
+
+    public void debitar(double valor) {
+        if (valor < 0) {
+            throw new IllegalArgumentException("o valor a ser creditado não pode ser negativo");
+        }
+        this.saldo -= valor;
     }
 
-    public boolean isDisponivel() {
-        return disponivel;
-    }
-
-    public void emprestar() {
-        this.disponivel = false;
-    }
-
-    public void devolver() {
-        this.disponivel = true;
+    public void creditar(double valor) {
+        if (valor < 0) {
+            throw new IllegalArgumentException("o valor a ser creditado não pode ser negativo");
+        }
+        this.saldo += valor;
     }
 }
 
-class Biblioteca {
-    private final List<Livro> livros;
+class ServicoBancario {
+    private final Map<String, Conta> contas = new HashMap<>();
 
-    public Biblioteca() {
-        this.livros = new ArrayList<>();
+    public void criarConta(String titular, double saldoInicial) {
+        Conta conta = new Conta(titular, saldoInicial);
+        this.contas.put(conta.getTitular(), conta);
     }
 
-    public void adicionarLivro(String titulo) {
-        livros.add(new Livro(titulo));
-    }
+    public void transferir(String origem, String destino, double valor) {
+        Conta contaOrigem = Optional.ofNullable(contas.get(origem))
+                .orElseThrow(() -> new IllegalArgumentException("Conta origem não encontrada"));
 
-    public void emprestarLivro(String titulo) {
-        for (Livro livro : livros) {
-            if (livro.getTitulo().equals(titulo) && livro.isDisponivel()) {
-                livro.emprestar();
-                System.out.println("Livro emprestado: " + titulo);
-                return;
-            }
+        Conta contaDestino = Optional.ofNullable(contas.get(destino))
+                .orElseThrow(() -> new IllegalArgumentException("Conta destino não encontrada"));
+
+        if(contaOrigem.getSaldo() < valor) {
+            throw new IllegalStateException("Saldo insuficiente");
         }
-        System.out.println("Livro não disponível.");
+
+        contaOrigem.debitar(valor);
+        contaDestino.creditar(valor);
+    }
+}
+
+class ConsoleInterface {
+    private final ServicoBancario servico;
+
+    public ConsoleInterface(ServicoBancario servico) {
+        this.servico = servico;
     }
 
-    public void devolverLivro(String titulo) {
-        for (Livro livro : livros) {
-            if (livro.getTitulo().equals(titulo)) {
-                livro.devolver();
-                System.out.println("Livro devolvido: " + titulo);
-                return;
-            }
+    public void iniciar() {
+        servico.criarConta("Cliente A", 1000);
+        servico.criarConta("Cliente B", 500);
+
+        try {
+            servico.transferir("Cliente A", "Cliente B", 300);
+            System.out.println("Transferência realizada com sucesso");
+        } catch (Exception e) {
+            System.err.println("Erro: " + e.getMessage());
         }
-        System.out.println("Livro não encontrado.");
     }
 }
 
 
 public class Main {
     public static void main(String[] args) {
-        Biblioteca biblioteca = new Biblioteca();
-        biblioteca.adicionarLivro("Livro 1");
-        biblioteca.adicionarLivro("Livro 2");
-
-        biblioteca.emprestarLivro("Livro 1");
-        biblioteca.emprestarLivro("Livro 3");
-
-        biblioteca.emprestarLivro("Livro 1");
-        biblioteca.devolverLivro("Livro 1");
-        biblioteca.emprestarLivro("Livro 1");
+        ServicoBancario servicoBancario = new ServicoBancario();
+        ConsoleInterface interfaceBancaria = new ConsoleInterface(servicoBancario);
+        interfaceBancaria.iniciar();
     }
 }
