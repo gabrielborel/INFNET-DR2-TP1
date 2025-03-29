@@ -18,7 +18,7 @@ class Pedido {
 
 public class Main {
     public static void main(String[] args) {
-        Pedido pedido = new Pedido(1, "Comida", 10.0);
+        Pedido pedido = new Pedido(1, "Comida", 17.0);
         System.out.println("ID do pedido: " + pedido.getId());
         System.out.println("Nome do pedido: " + pedido.getDescricao());
         System.out.println("Valor do pedido: " + pedido.getValor());
