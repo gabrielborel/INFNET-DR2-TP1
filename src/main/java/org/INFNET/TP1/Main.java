@@ -1,88 +1,69 @@
 package org.INFNET.TP1;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-class Conta {
-    private String titular;
-    private double saldo;
+class Cliente {
+    private final String nome;
+    private final double saldo;
 
-    public Conta(String titular, double saldoInicial) {
-        if (saldoInicial < 0) {
-            throw new IllegalArgumentException("saldo não pode ser menor que zero");
-        }
-        this.titular = titular;
-        this.saldo = saldoInicial;
+    public Cliente(String nome, double saldo) {
+        this.nome = nome;
+        this.saldo = saldo;
     }
 
-    public String getTitular() { return titular; }
+    public String getNome() { return nome; }
     public double getSaldo() { return saldo; }
+}
 
-    public void debitar(double valor) {
-        if (valor < 0) {
-            throw new IllegalArgumentException("o valor a ser creditado não pode ser negativo");
-        }
-        this.saldo -= valor;
-    }
-
-    public void creditar(double valor) {
-        if (valor < 0) {
-            throw new IllegalArgumentException("o valor a ser creditado não pode ser negativo");
-        }
-        this.saldo += valor;
+class FormatadorMoeda {
+    public String formatar(double valor) {
+        return String.format("R$ %.2f", valor);
     }
 }
 
-class ServicoBancario {
-    private final Map<String, Conta> contas = new HashMap<>();
+class RelatorioFinanceiro {
+    private final FormatadorMoeda formatador;
 
-    public void criarConta(String titular, double saldoInicial) {
-        Conta conta = new Conta(titular, saldoInicial);
-        this.contas.put(conta.getTitular(), conta);
+    public RelatorioFinanceiro() {
+        this.formatador = new FormatadorMoeda();
     }
 
-    public void transferir(String origem, String destino, double valor) {
-        Conta contaOrigem = Optional.ofNullable(contas.get(origem))
-                .orElseThrow(() -> new IllegalArgumentException("Conta origem não encontrada"));
+    public void gerarRelatorio(List<Cliente> clientes) {
+        imprimirCabecalho();
+        imprimirCorpo(clientes);
+        imprimirRodape();
+    }
 
-        Conta contaDestino = Optional.ofNullable(contas.get(destino))
-                .orElseThrow(() -> new IllegalArgumentException("Conta destino não encontrada"));
+    private void imprimirCabecalho() {
+        System.out.println("=== Relatório Financeiro ===");
+    }
 
-        if(contaOrigem.getSaldo() < valor) {
-            throw new IllegalStateException("Saldo insuficiente");
+    private void imprimirCorpo(List<Cliente> clientes) {
+        if(clientes.isEmpty()) {
+            System.out.println("Nenhum dado disponível");
+            return;
         }
 
-        contaOrigem.debitar(valor);
-        contaDestino.creditar(valor);
+        clientes.forEach(cliente ->
+                System.out.println("Cliente: " + cliente.getNome() +
+                        " - Saldo: " + formatador.formatar(cliente.getSaldo()))
+        );
+    }
+
+    private void imprimirRodape() {
+        System.out.println("===========================");
+        System.out.println("Fim do Relatório");
     }
 }
-
-class ConsoleInterface {
-    private final ServicoBancario servico;
-
-    public ConsoleInterface(ServicoBancario servico) {
-        this.servico = servico;
-    }
-
-    public void iniciar() {
-        servico.criarConta("Cliente A", 1000);
-        servico.criarConta("Cliente B", 500);
-
-        try {
-            servico.transferir("Cliente A", "Cliente B", 300);
-            System.out.println("Transferência realizada com sucesso");
-        } catch (Exception e) {
-            System.err.println("Erro: " + e.getMessage());
-        }
-    }
-}
-
 
 public class Main {
     public static void main(String[] args) {
-        ServicoBancario servicoBancario = new ServicoBancario();
-        ConsoleInterface interfaceBancaria = new ConsoleInterface(servicoBancario);
-        interfaceBancaria.iniciar();
+        List<Cliente> clientes = Arrays.asList(
+                new Cliente("João Silva", 1500.75),
+                new Cliente("Maria Souza", 24500.20),
+                new Cliente("Empresa XYZ", 1500000.00)
+        );
+
+        new RelatorioFinanceiro().gerarRelatorio(clientes);
     }
 }
